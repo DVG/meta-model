@@ -1,33 +1,32 @@
 import Ember from 'ember';
-import Post from '../models/post';
-import Person from '../models/person';
 
 export default Ember.Controller.extend({
   actions: {
     thingie: function() {
-      var post, posts, person, people, container;
-      post = this.store.createRecord('post', {
+      var post, posts, person, people, container, store;
+      store = this.store;
+      post = store.createRecord('post', {
         title: "Hello World"
       });
 
       // array of all posts
-      posts = [post]
+      posts = [post];
 
-      person = this.store.createRecord('person', {
+      person = store.createRecord('person', {
         name: "Bobby"
       });
 
       //array of all people
-      people = [person]
+      people = [person];
 
       //container is the package that will be sent to the server
-      container = this.store.createRecord('container', {
+      container = store.createRecord('container', {
         posts: posts,
         people: people
       });
-      container.save()
+
       /*
-        Serialized JSON looks like:
+      Serialized JSON looks like:
         {
           container: {
             people: [
@@ -39,6 +38,12 @@ export default Ember.Controller.extend({
           }
         }
       */
+      container.save().then(function() {
+        // Clean Up Non-Persistant Records from the Store
+        store.unloadAll('person');
+        store.unloadAll('post');
+      });
+
     }
   }
 });
